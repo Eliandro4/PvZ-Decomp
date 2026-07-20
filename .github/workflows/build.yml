@@ -1,0 +1,44 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Debug|x86
+        run: msbuild PlantsVsZombies.sln /p:Configuration=Debug /p:Platform=x86
+
+      - name: Build Release|x86
+        run: msbuild PlantsVsZombies.sln /p:Configuration=Release /p:Platform=x86
+
+      - name: Upload Debug artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-build
+          path: |
+            Debug/*.exe
+            Debug/*.pdb
+            SexyAppFramework/Debug/*.pdb
+            SexyAppFramework/Debug/*.ilk
+
+      - name: Upload Release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-build
+          path: |
+            Release/*.exe
+            Release/*.pdb
+            SexyAppFramework/Release/*.pdb
+            SexyAppFramework/Release/*.ilk
